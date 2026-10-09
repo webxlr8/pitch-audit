@@ -198,13 +198,10 @@ def pdf_checks(pdf):
     """The deliverable is an image PDF: check it has a title, a searchable text layer and working links."""
     out = {}
     try:
-        info = subprocess.run(["pdfinfo", pdf], capture_output=True, text=True).stdout
-        title = [l.split(":", 1)[1].strip() for l in info.splitlines() if l.startswith("Title:")]
-        out["title"] = title[0] if title else ""
-        txt = subprocess.run(["pdftotext", pdf, "-"], capture_output=True, text=True).stdout
-        out["text_layer_words"] = len(txt.split())
         import pypdf
         r = pypdf.PdfReader(pdf)
+        out["title"] = (r.metadata or {}).get("/Title") or ""
+        out["text_layer_words"] = sum(len((p.extract_text() or "").split()) for p in r.pages)
         out["links"] = [a.get_object()["/A"].get("/URI") for p in r.pages for a in (p.get("/Annots") or [])]
         out["pages"] = len(r.pages)
         out["size_kb"] = os.path.getsize(pdf) // 1024

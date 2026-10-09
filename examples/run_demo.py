@@ -5,7 +5,7 @@
 
 Starts the flawed demo site on 127.0.0.1:8765 → audit.py → score.py → evidence.py → fills deck-data.json from
 the template using the audit's own numbers → build.py (lint, render, WCAG, viewer checks).
-Output: examples/northwind/clients/kestrel-valley/*.pdf (also copied to examples/demo-output.pdf).
+Output: examples/northwind/clients/kestrel-valley/*.pdf (also copied to examples/demo-output.pdf, which is git-ignored).
 """
 import json
 import os

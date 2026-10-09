@@ -2,7 +2,7 @@
 """Collect raw website audit data for one client.
 
 Usage:
-    python3 audit.py <url> --out <client_dir> [--no-lighthouse] [--max-links 25]
+    python3 audit.py <url> --out <client_dir> [--speed auto|psi|local|off] [--max-links 25]
 
 Writes:
     <client_dir>/audit.json
@@ -368,7 +368,10 @@ def check_links(links, origin_host, max_links):
     return {"checked": len(targets), "broken": broken}
 
 
-def run_lighthouse(url, form, out_dir):
+def run_local_lighthouse(url, form, out_dir):
+    """Lighthouse on this machine (needs Node/npx). Returns parsed result or None."""
+    if not shutil.which("npx"):
+        return None
     chrome = find_chrome()
     out_path = os.path.join(out_dir, f"lighthouse-{form}.json")
     cmd = ["npx", "-y", "lighthouse@13", url, "--output=json", f"--output-path={out_path}", "--quiet",
@@ -384,11 +387,39 @@ def run_lighthouse(url, form, out_dir):
         with open(out_path) as f:
             return parse_lighthouse(json.load(f))
     except Exception as e:  # noqa: BLE001
-        log(f"lighthouse {form} failed: {str(e)[:200]}; trying PageSpeed Insights API")
-        return run_psi(url, form)
+        log(f"local lighthouse {form} failed: {str(e)[:160]}")
+        return None
 
 
-def run_psi(url, form):
+def is_local_url(url):
+    h = urllib.parse.urlparse(url).hostname or ""
+    return h in ("localhost", "127.0.0.1", "::1") or h.endswith((".local", ".test", ".localhost"))
+
+
+def speed_source(mode, url):
+    """auto: PageSpeed API when PSI_API_KEY is set (no install, runs on Google's servers), else local Lighthouse
+    when Node is installed, else PageSpeed without a key (rate-limited). Local URLs always use local Lighthouse."""
+    if mode != "auto":
+        return mode
+    if is_local_url(url):
+        return "local"
+    if os.environ.get("PSI_API_KEY"):
+        return "psi"
+    return "local" if shutil.which("npx") else "psi"
+
+
+def run_lighthouse(url, form, out_dir, mode="auto"):
+    first = speed_source(mode, url)
+    order = [first] + [m for m in ("psi", "local") if m != first and not (m == "psi" and is_local_url(url))]
+    for m in order:
+        res = run_psi(url, form, out_dir) if m == "psi" else run_local_lighthouse(url, form, out_dir)
+        if res:
+            return res
+        log(f"{m} speed test for {form} unavailable, trying next source")
+    return None
+
+
+def run_psi(url, form, out_dir=None):
     api = ("https://www.googleapis.com/pagespeedonline/v5/runPagespeed?" + urllib.parse.urlencode(
         [("url", url), ("strategy", form), ("category", "performance"), ("category", "accessibility"),
          ("category", "best-practices"), ("category", "seo")]))
@@ -400,6 +431,9 @@ def run_psi(url, form):
         log(f"PSI {form} failed: {r['error']}")
         return None
     data = json.loads(r["body"])
+    if out_dir and data.get("lighthouseResult"):  # same file shape as local Lighthouse (filmstrip etc.)
+        with open(os.path.join(out_dir, f"lighthouse-{form}.json"), "w") as f:
+            json.dump(data["lighthouseResult"], f)
     out = parse_lighthouse(data.get("lighthouseResult", {}))
     crux = data.get("loadingExperience", {}).get("metrics")
     if crux:
@@ -456,7 +490,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("url")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--no-lighthouse", action="store_true")
+    ap.add_argument("--no-lighthouse", action="store_true", help="same as --speed off")
+    ap.add_argument("--speed", choices=["auto", "psi", "local", "off"], default="auto",
+                    help="speed test source: auto (PSI_API_KEY → PageSpeed API, else local Lighthouse if Node, else PageSpeed keyless)")
     ap.add_argument("--max-links", type=int, default=25)
     a = ap.parse_args()
 
@@ -568,10 +604,12 @@ def main():
     links = check_links(d.get("links", []), host, a.max_links) if d else {"checked": 0, "broken": []}
 
     lh = {"mobile": None, "desktop": None}
-    if not a.no_lighthouse:
-        for form in ("mobile", "desktop"):
-            log(f"lighthouse {form} (30-90s)")
-            lh[form] = run_lighthouse(final, form, out_dir)
+    if not a.no_lighthouse and a.speed != "off":
+        src = speed_source(a.speed, final)
+        log(f"speed tests: mobile + desktop in parallel via {'PageSpeed Insights API' if src == 'psi' else 'local Lighthouse'} (30-90s)")
+        with cf.ThreadPoolExecutor(max_workers=2) as ex:
+            futs = {form: ex.submit(run_lighthouse, final, form, out_dir, a.speed) for form in ("mobile", "desktop")}
+            lh = {form: f.result() for form, f in futs.items()}
 
     audit = {
         "url": a.url, "reachable": True, "final_url": final, "audited_at": dt.datetime.now().isoformat(timespec="seconds"),

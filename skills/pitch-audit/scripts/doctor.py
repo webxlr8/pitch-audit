@@ -67,15 +67,17 @@ def main():
     if chrome == "bundled chromium":
         print("         note: using Playwright's bundled Chromium (set PITCH_BROWSER=chromium); Google Chrome is preferred")
 
-    good &= check("Node.js + npx (Lighthouse speed tests)", bool(shutil.which("npx")), install_hint("node"))
-    good &= check("poppler (pdftoppm, pdftotext, pdfinfo)", bool(shutil.which("pdftoppm") and shutil.which("pdfinfo")), install_hint("poppler"))
+    psi, npx = bool(os.environ.get("PSI_API_KEY")), bool(shutil.which("npx"))
+    good &= check("Speed tests: PSI_API_KEY (PageSpeed API, no install) or Node.js/npx (local Lighthouse)", psi or npx,
+                  "free key: https://developers.google.com/speed/docs/insights/v5/get-started  ·  or " + install_hint("node"))
+    if psi and not npx:
+        print("  INFO local/demo sites (localhost) need Node for Lighthouse; public sites use the PageSpeed API")
+    check("poppler (extra PDF engine for the viewer check)", bool(shutil.which("pdftoppm")), install_hint("poppler"), required=False)
     if OS == "Darwin":
-        check("swift (Apple PDFKit check = WhatsApp/iOS engine)", bool(shutil.which("swift")),
+        check("swiftc (Apple PDFKit check = WhatsApp/iOS engine; compiled once, then cached)", bool(shutil.which("swiftc") or shutil.which("swift")),
               "xcode-select --install", required=False)
     else:
         print("  INFO Apple PDFKit check only runs on macOS; the structure check guarantees WhatsApp-safe PDFs everywhere")
-    check("PSI_API_KEY (PageSpeed fallback when Lighthouse fails)", bool(os.environ.get("PSI_API_KEY")),
-          "optional: create a key at https://developers.google.com/speed/docs/insights/v5/get-started", required=False)
     check("UNSPLASH_ACCESS_KEY or PEXELS_API_KEY (photo search via API)",
           bool(os.environ.get("UNSPLASH_ACCESS_KEY") or os.environ.get("PEXELS_API_KEY")),
           "optional: without keys, photos are fetched by URL or a generated background is used", required=False)

@@ -9,7 +9,7 @@ One deck = one brand: the company's. Products appear by logo in the company colo
 pitch, --theme <offer-id> (or deck-data "theme") uses pitch-profile/themes/<offer-id>.json, credited "A <Company> company".
 
 Writes ONE file per client:
-  <name>.pdf   one flattened 2x image per page + invisible text layer (searchable/copyable) + clickable links.
+  <name>.pdf   one flattened image per page (1920 px, or 2560 px with --hq) + invisible text layer (searchable/copyable) + clickable links.
                Renders identically in WhatsApp, iOS/Android, Gmail, Outlook and Apple Mail.
   build/deck/ref-XX.png  browser ground truth used by compat_check.py.
 --preview writes previews/*.png (identical to the PDF pages). --with-summary adds an optional 1-page summary PDF.
@@ -67,6 +67,7 @@ def main():
     ap.add_argument("--preview", action="store_true")
     ap.add_argument("--with-summary", action="store_true", help="also write a separate 1-page summary PDF (off by default: one file per client)")
     ap.add_argument("--out")
+    ap.add_argument("--hq", action="store_true", help="2560 px pages at JPEG 90 (for print); default 1920 px at 85")
     a = ap.parse_args()
 
     cdir = os.path.abspath(a.client_dir)
@@ -131,7 +132,8 @@ def main():
             if os.path.isdir(bdir):
                 shutil.rmtree(bdir)
             os.makedirs(bdir)
-            bctx = b.new_context(viewport={"width": 1280, "height": 720}, device_scale_factor=2)
+            # 1.5x = 1920 px pages: invisible loss on phones (PSNR ≈ 45 dB at phone size), half the file size of 2x.
+            bctx = b.new_context(viewport={"width": 1280, "height": 720}, device_scale_factor=2 if a.hq else 1.5)
             pg = bctx.new_page()
             pg.emulate_media(media="print")  # lay out exactly as the PDF engine does
             pg.goto(pathlib.Path(html_path).as_uri(), wait_until="networkidle", timeout=60000)
@@ -140,7 +142,7 @@ def main():
             issues = pg.evaluate(OVERFLOW_JS)
             slides = pg.query_selector_all(".slide")
 
-            # 1. reference renders = ground truth of the design (2x)
+            # 1. reference renders = ground truth of the design
             refs = []
             for n, el in enumerate(slides):
                 rp = os.path.join(bdir, f"ref-{n + 1:02d}.png")
@@ -150,7 +152,7 @@ def main():
 
             # 2. THE PDF: one flattened image per page + invisible text layer + links.
             #    Nothing for a viewer to mis-draw: identical in WhatsApp, iOS/Android, Gmail, Outlook, Apple Mail.
-            build_share_pdf(refs, text_runs, pdf_path, title=dk.get("title", ""), author=company, dpr=2)
+            build_share_pdf(refs, text_runs, pdf_path, title=dk.get("title", ""), author=company, quality=90 if a.hq else 85)
 
             bctx.close()
 
@@ -228,7 +230,7 @@ TEXT_RUNS_JS = r"""
 
 
 
-def build_share_pdf(refs, text_runs, out_path, title="", author="", dpr=2):
+def build_share_pdf(refs, text_runs, out_path, title="", author="", quality=85):
     """Image-per-page PDF with an invisible, selectable/searchable text layer and clickable links."""
     from reportlab.lib.utils import ImageReader
     from reportlab.pdfbase.pdfmetrics import stringWidth
@@ -244,7 +246,8 @@ def build_share_pdf(refs, text_runs, out_path, title="", author="", dpr=2):
     for n, rp in enumerate(refs):
         im = Image.open(rp).convert("RGB")
         jp = rp.replace(".png", ".jpg")
-        im.save(jp, "JPEG", quality=90, optimize=True, progressive=False, subsampling=0)
+        # baseline JPEG, full colour resolution (4:4:4) so coloured small text stays crisp; baseline = widest viewer support
+        im.save(jp, "JPEG", quality=quality, optimize=True, progressive=False, subsampling=0)
         c.drawImage(ImageReader(jp), 0, 0, width=PW, height=PH)
         for r in (x for x in runs if x["s"] == n):
             fs = max(4.0, r["fs"] * k)

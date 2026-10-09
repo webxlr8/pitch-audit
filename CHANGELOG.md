@@ -1,14 +1,25 @@
 # Changelog
 
-## 0.1.0: 2026-10-09
+## 0.1.0 (2026-10-09)
 First public release.
-- Company profile: `setup_profile.py` drafts it from your website (logo rendered in isolation + auto light version, brand colour, fonts, contact, page text); `profile_check.py` validates it.
-- Prospect audit (`audit.py`): Lighthouse, HTML/SEO, security headers and certificate (incl. bare-domain mismatch), links, tracking, social, conversion and ops signals; detects unreachable and parked domains.
+
+Pitching
+- Company profile set up from your own website (`setup_profile.py`): logo rendered alone with a light version made automatically, brand colour, fonts, contact, page text for drafting your offers. `profile_check.py` validates it.
+- Prospect audit (`audit.py`): Lighthouse speed tests (mobile and desktop in parallel, via the PageSpeed API or local Lighthouse), SEO, security headers and certificates (including a bad certificate on the bare domain), links, analytics, social, conversion and operations signals. Detects unreachable and parked domains.
 - Scoring (`score.py`, `rubric.json`): 8 weighted categories; findings map to your offers through `mapping.yaml`.
-- Two deck styles: "Neon Studio" (dark) and "Editorial" (light, serif). Photo backgrounds, number tiles, score and gaps, evidence screenshots, page-load filmstrip, product mockup, proof strip. One deck uses one brand.
-- Prospect visuals (`prospect_assets.py`): their logo (background removed, light version for dark slides), their own photos, the Lighthouse load filmstrip. Generated on-brand backgrounds (`backgrounds.py`).
-- Copy checks in `lint_deck.py`: stock phrases, em dashes, Title Case headlines and a repeated headline formula fail the build.
-- Evidence capture (`evidence.py`) and free-photo fetching/search (`fetch_image.py`, Unsplash/Pexels).
-- One send-ready PDF: flattened pages + invisible text layer + links, identical in WhatsApp/iOS/Android/email.
-- `build.py`: deck lint (structure, word budget, fact-trace) → render → WCAG 2.2 AA + colour-blind sims → viewer compatibility (flat-structure check + Apple PDFKit / PDFium / poppler render diffs).
-- `doctor.py`, Dockerfile, fictional end-to-end demo (`examples/run_demo.py`), unit tests, CI on Linux + macOS.
+- Prospect visuals (`prospect_assets.py`): their logo with the background removed, their own photos, the page-load filmstrip. Evidence screenshots (`evidence.py`), free photo search (`fetch_image.py`), generated on-brand backgrounds (`backgrounds.py`).
+- Two deck styles: Neon Studio (dark) and Editorial (light, serif).
+
+Quality gates (`build.py`)
+- Lint: every number traced to a source, word budget per slide, and copy checks that fail stock phrases, em dashes, Title Case headlines and a repeated headline formula.
+- WCAG 2.2 AA contrast measured on the rendered pixels, including text over photos; colour-blind simulations.
+- Viewer compatibility: every page must be one flat image; pages rendered in Apple PDFKit (macOS), PDFium and poppler (if installed) are compared with the design.
+
+Light by default
+- One PDF per prospect, about 1.5–2 MB for 8 slides (1920 px pages); `--hq` for 2560 px print quality.
+- No poppler or Node.js required: PDF checks use PDFium and pypdf; speed tests can use Google's PageSpeed API.
+- Apple PDFKit checker compiled once and cached.
+- Shorter `SKILL.md`; details load only when needed.
+
+Project
+- Fictional end-to-end demo (`examples/run_demo.py`), 14 unit tests, CI on Linux and macOS, Dockerfile, `doctor.py`.

@@ -86,6 +86,20 @@ class Slop(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
 
 
+class Speed(unittest.TestCase):
+    def test_source_selection(self):
+        import audit as A
+        old = dict(os.environ)
+        try:
+            os.environ.pop("PSI_API_KEY", None)
+            self.assertEqual(A.speed_source("auto", "http://127.0.0.1:8765/"), "local")  # PageSpeed can't reach localhost
+            os.environ["PSI_API_KEY"] = "x"
+            self.assertEqual(A.speed_source("auto", "https://example.com"), "psi")
+            self.assertEqual(A.speed_source("local", "https://example.com"), "local")
+        finally:
+            os.environ.clear(); os.environ.update(old)
+
+
 class Profile(unittest.TestCase):
     def test_demo_profile_is_usable(self):
         r = run("profile_check.py", "--profile", PROFILE)
@@ -134,6 +148,9 @@ class PdfStructure(unittest.TestCase):
             c.drawImage(ImageReader(os.path.join(d, "mask.png")), 50, 50, 200, 100, mask="auto")
             c.showPage(); c.save()
             self.assertTrue(C.structure_check(os.path.join(d, "masked.pdf")))
+            import a11y_check as A  # PDF metadata checks work without poppler
+            info = A.pdf_checks(os.path.join(d, "flat.pdf"))
+            self.assertEqual(info["pages"], 1)
         finally:
             shutil.rmtree(d)
 

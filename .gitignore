@@ -17,3 +17,6 @@ examples/northwind/clients/*/compat/
 examples/northwind/clients/*/deck.html
 examples/northwind/clients/*/deck-data.json
 examples/northwind/clients/*/*.pdf
+
+# demo PDF ships as a release asset, not in the repo
+examples/demo-output.pdf

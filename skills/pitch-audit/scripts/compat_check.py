@@ -7,7 +7,7 @@ Usage:
 For each deliverable PDF (share + accessible, deck + summary) it renders every page with:
   - Apple PDFKit  (WhatsApp on iPhone/Mac, Apple Mail, Preview)   via pdfkit_render.swift (macOS only)
   - PDFium        (Chrome, Android PdfRenderer, Gmail/Drive previews)   via pypdfium2 (any OS)
-  - poppler       (pdftoppm; Linux desktop viewers)
+  - poppler       (pdftoppm; Linux desktop viewers), optional: used when installed
 and compares each page against the browser reference build/<kind>/ref-XX.png in 32x32 px tiles.
 A page FAILS (after a 2.5 px blur that removes anti-aliasing noise) when any tile's mean difference > 30/255 (missing photo tile, dropped mask, lost shadow
 block) or the whole page differs > 5/255 on average. Writes compat/report.md and diff sheets.
@@ -27,10 +27,27 @@ W, H = 1280, 720
 TILE, TILE_FAIL, PAGE_FAIL = 32, 30.0, 5.0
 
 
+def pdfkit_binary():
+    """Compile pdfkit_render.swift once into a cache (keyed by source hash); later runs start instantly."""
+    import hashlib
+    src = os.path.join(HERE, "pdfkit_render.swift")
+    h = hashlib.sha1(open(src, "rb").read()).hexdigest()[:12]
+    cache = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "pitch-audit")
+    exe = os.path.join(cache, f"pdfkit_render-{h}")
+    if os.path.exists(exe):
+        return [exe]
+    if shutil.which("swiftc"):
+        os.makedirs(cache, exist_ok=True)
+        r = subprocess.run(["swiftc", "-O", src, "-o", exe], capture_output=True, text=True)
+        if r.returncode == 0:
+            return [exe]
+    return ["swift", src]  # interpreted fallback (slower)
+
+
 def render_pdfkit(pdf, out):
-    if sys.platform != "darwin" or not shutil.which("swift"):
+    if sys.platform != "darwin" or not (shutil.which("swiftc") or shutil.which("swift")):
         return None
-    r = subprocess.run(["swift", os.path.join(HERE, "pdfkit_render.swift"), pdf, out, str(W)], capture_output=True, text=True)
+    r = subprocess.run(pdfkit_binary() + [pdf, out, str(W)], capture_output=True, text=True)
     return sorted(os.path.join(out, f) for f in os.listdir(out)) if r.returncode == 0 else None
 
 
@@ -157,8 +174,8 @@ def main():
             print(f"{f[:60]:<60} {eng:<36} {status} {detail}")
         lines.append("")
     open(os.path.join(out, "report.md"), "w").write("\n".join(lines) + "\n")
-    if engines_run < 2:
-        print("FAIL: fewer than 2 PDF engines available. Install pypdfium2 (pip) and poppler, or run on macOS for PDFKit.")
+    if engines_run < 1:
+        print("FAIL: no PDF engine available. pip install pypdfium2 (any OS); macOS also uses Apple PDFKit.")
         sys.exit(1)
     sys.exit(1 if share_fail else 0)
 

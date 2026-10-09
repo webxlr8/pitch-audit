@@ -1,4 +1,4 @@
-# pitch-audit in a box: Chromium, Node (Lighthouse), poppler, Python deps.
+# pitch-audit in a box: Chromium, Node (local Lighthouse), poppler (extra PDF check), Python deps.
 #   docker build -t pitch-audit .
 #   docker run --rm -v "$PWD/work:/work" pitch-audit python3 /skill/scripts/build.py /work/clients/<slug>
 FROM mcr.microsoft.com/playwright/python:v1.48.0-jammy

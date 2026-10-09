@@ -7,9 +7,9 @@
 
 A Claude Code skill for agencies and freelancers. Give it a prospect's website and it produces a short pitch deck PDF in your brand: what is wrong with their site, shown with screenshots from their own pages, and the one thing you would fix first.
 
-![Two cover slides from the demo: a dark style and a light editorial style](docs/img/hero-covers.png)
+![Two cover slides from the demo: a dark style and a light editorial style](docs/img/hero-covers.jpg)
 
-The demo above is fictional: "Northwind Studio" pitching "Kestrel Valley Haulage". The prospect's deliberately flawed website ships in [`examples/demo-site/`](examples/demo-site/), so you can reproduce every slide.
+The demo above is fictional: "Northwind Studio" pitching "Kestrel Valley Haulage". The prospect's deliberately flawed website ships in [`examples/demo-site/`](examples/demo-site/), so you can reproduce every slide. The finished demo PDF is attached to the [latest release](https://github.com/webxlr8/pitch-audit/releases/latest).
 
 ## What you get for each prospect
 
@@ -27,7 +27,7 @@ The demo above is fictional: "Northwind Studio" pitching "Kestrel Valley Haulage
 
 ## Why the PDF opens correctly on phones
 
-Apple's PDF engine, which WhatsApp, iPhone and Apple Mail use, drops parts of normal browser-printed PDFs: photo fades, masks and shadows go missing. So each page is saved as one high-resolution image, with an invisible text layer on top (searchable, copyable) and real links. The build renders every page in Apple PDFKit, PDFium (Chrome, Android, Gmail) and poppler, and compares them with the original design.
+Apple's PDF engine, which WhatsApp, iPhone and Apple Mail use, drops parts of normal browser-printed PDFs: photo fades, masks and shadows go missing. So each page is saved as one high-resolution image, with an invisible text layer on top (searchable, copyable) and real links. The build checks that every page is a single flat image, renders each page in Apple PDFKit (on macOS), PDFium (Chrome, Android, Gmail) and poppler (if installed), and compares them with the original design.
 
 ## Install
 
@@ -42,7 +42,7 @@ Check your machine and run the demo:
 ```bash
 pip install -r skills/pitch-audit/requirements.txt
 python3 skills/pitch-audit/scripts/doctor.py
-python3 examples/run_demo.py          # writes examples/demo-output.pdf
+python3 examples/run_demo.py          # builds the demo deck; or download it from the latest release
 ```
 
 ## Use it
@@ -58,7 +58,7 @@ Setup reads your website and drafts your profile: logo, brand colour, fonts, con
 
 | Neon Studio (dark) | Editorial (light) |
 |---|---|
-| ![Demo deck in the dark style](docs/img/demo-deck-dark.png) | ![Demo deck in the light editorial style](docs/img/demo-deck-editorial.png) |
+| ![Demo deck in the dark style](docs/img/demo-deck-dark.jpg) | ![Demo deck in the light editorial style](docs/img/demo-deck-editorial.jpg) |
 | Tech, logistics, SaaS | Hospitality, food, professional services, traditional businesses |
 
 Both use your colours, fonts and logo. Adding a style is a CSS file; see [docs/styles.md](docs/styles.md).
@@ -77,7 +77,12 @@ The deck prefers images in this order: the prospect's own logo and photos, then 
 
 ## Requirements
 
-Python 3.9+, Google Chrome or Playwright's Chromium, Node.js (for Lighthouse) and poppler. On macOS the Apple PDFKit check runs too. A `Dockerfile` is included. Optional keys: `PSI_API_KEY`, `UNSPLASH_ACCESS_KEY`, `PEXELS_API_KEY`.
+- Python 3.9+ (about 40 MB of packages) and Google Chrome. No browser download is needed if Chrome is installed.
+- For speed tests, either a free Google PageSpeed API key (`PSI_API_KEY`, nothing else to install) or Node.js for local Lighthouse.
+- Optional: poppler adds a third PDF engine to the viewer check. On macOS the Apple PDFKit check runs too.
+- A `Dockerfile` is included.
+
+The PDF you send is about 1.5 MB for 8 slides (`--hq` gives 2560 px pages for print).
 
 ## License
 
