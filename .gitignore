@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.DS_Store
+# your own data never goes in the repo
+/pitch-profile/
+/clients/
+# demo run artefacts (re-created by examples/run_demo.py)
+examples/northwind/clients/*/audit.json
+examples/northwind/clients/*/scores.json
+examples/northwind/clients/*/page_text.txt
+examples/northwind/clients/*/lighthouse-*.json
+examples/northwind/clients/*/screenshots/
+examples/northwind/clients/*/previews/
+examples/northwind/clients/*/build/
+examples/northwind/clients/*/a11y/
+examples/northwind/clients/*/compat/
+examples/northwind/clients/*/deck.html
+examples/northwind/clients/*/deck-data.json
+examples/northwind/clients/*/*.pdf

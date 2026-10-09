@@ -1,0 +1,14 @@
+{
+  "name": "pitch-audit",
+  "owner": {
+    "name": "pitch-audit contributors"
+  },
+  "description": "Website audit to pitch deck PDF, as a Claude Code skill",
+  "plugins": [
+    {
+      "name": "pitch-audit",
+      "source": "./",
+      "description": "Audit a prospect's website and render a send-ready pitch-deck PDF from your company profile."
+    }
+  ]
+}

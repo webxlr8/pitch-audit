@@ -1,0 +1,22 @@
+# FICTIONAL demo company. Replace with your own via: python3 scripts/setup_profile.py <your-url>
+id: northwind
+name: Northwind Studio
+website: https://northwind.example
+tagline: Web · Growth · Operations software
+one_liner: A small product studio that builds fast websites and simple operations software for growing businesses.
+region: US
+currency: USD
+language: en
+contact:
+  email: hello@northwind.example
+  phone: +1 555 0100
+  address_short: Portland, Oregon
+  booking_url: https://cal.com/northwind-demo/intro
+brand:
+  logo_on_dark: brand/logo-on-dark.svg
+  logo: brand/logo.svg
+  logo_height: 30
+  accent: "#2DD4BF"
+  background: "#0B1220"
+  heading_font: Inter
+  body_font: Inter

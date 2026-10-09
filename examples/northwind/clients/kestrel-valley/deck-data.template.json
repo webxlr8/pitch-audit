@@ -1,0 +1,250 @@
+{
+ "title": "Kestrel Valley Haulage: website and operations review",
+ "client": {
+  "name": "Kestrel Valley Haulage",
+  "url": "{{url}}",
+  "logo_on_dark": "images/prospect-logo-on-dark.png",
+  "logo": "images/prospect-logo.png"
+ },
+ "slides": [
+  {
+   "layout": "cover",
+   "photo": {
+    "src": "images/prospect-photo-1.jpg",
+    "mode": "full",
+    "pos": "center 60%",
+    "dim": 0.4
+   },
+   "eyebrow": "Website and operations review",
+   "title": "What shippers see\n*before they call you*",
+   "subtitle": "A review of your website and how loads get booked today.",
+   "image": {
+    "src": "screenshots/desktop-fold.png",
+    "label": "kestrel-valley.example",
+    "alt": "Kestrel Valley Haulage homepage"
+   },
+   "footer": "Fictional demo prepared by Northwind Studio"
+  },
+  {
+   "layout": "statement",
+   "photo": {
+    "src": "images/prospect-photo-2.jpg",
+    "mode": "right",
+    "pos": "40% center"
+   },
+   "eyebrow": "What we understood",
+   "title": "Fourteen tankers,\n*one phone line*",
+   "size": "h-md",
+   "text_width": 540,
+   "body": "Bulk fuel and food-grade liquid haulage across the Pacific Northwest since 2011.",
+   "tiles": [
+    {
+     "value": "2011",
+     "label": "Founded"
+    },
+    {
+     "value": "14",
+     "label": "Tankers"
+    },
+    {
+     "value": "22",
+     "label": "Drivers"
+    },
+    {
+     "value": "{{overall}}",
+     "label": "Website score /100"
+    }
+   ],
+   "tile_cols": 2
+  },
+  {
+   "layout": "score_gaps",
+   "eyebrow": "Your scorecard",
+   "title": "{{overall}}/100, *mostly lost on three things*",
+   "overall": "{{overall:int}}",
+   "categories": "{{categories}}",
+   "gaps": [
+    {
+     "icon": "truck",
+     "title": "Tracking promised, not shown",
+     "body": "Shippers find a phone number and office hours."
+    },
+    {
+     "icon": "zap",
+     "title": "A very heavy homepage",
+     "body": "{{page_mb}} MB downloads before it settles."
+    },
+    {
+     "icon": "phone",
+     "title": "Phone number can't be tapped",
+     "body": "Booking from a phone means copying it by hand."
+    }
+   ]
+  },
+  {
+   "layout": "finding",
+   "eyebrow": "Gap 01 · Operations",
+   "title": "“24/7 tracking”\n*or 9 to 5?*",
+   "body": "Your homepage and your contact page promise different things.",
+   "impact": "Shippers notice, and call dispatch to check.",
+   "image": {
+    "src": "screenshots/evidence-promise.png",
+    "label": "kestrel-valley.example",
+    "inset": true,
+    "size": "large",
+    "caption": "Top: homepage. Bottom: contact page.",
+    "alt": "Homepage promising 24/7 live tracking above the contact page listing weekday office hours"
+   }
+  },
+  {
+   "use_if": "filmstrip",
+   "layout": "finding",
+   "eyebrow": "Gap 02 · Speed",
+   "title": "{{first_content_s}} seconds\n*of blank screen*",
+   "body": "What a shipper on a phone sees while your homepage loads.",
+   "impact": "The page downloads {{page_mb}} MB before it settles.",
+   "filmstrip": "{{filmstrip}}"
+  },
+  {
+   "use_if": "no_filmstrip",
+   "layout": "finding",
+   "eyebrow": "Gap 02 · Speed",
+   "title": "One photo\n*slows every visit*",
+   "metric": {
+    "value": "{{page_mb}} MB",
+    "label": "downloaded before the page settles"
+   },
+   "body": "The homepage hero image is an uncompressed PNG.",
+   "impact": "On mobile data, shippers wait or leave.",
+   "image": {
+    "src": "screenshots/mobile-fold.png",
+    "frame": "phone",
+    "alt": "Homepage on a phone with an oversized logo"
+   }
+  },
+  {
+   "layout": "finding",
+   "eyebrow": "Gap 03 · Mobile",
+   "title": "The phone number\n*can't be tapped*",
+   "body": "On a phone, booking a load means copying the number by hand.",
+   "impact": "Your main way to book is the hardest one to use.",
+   "image": {
+    "src": "screenshots/evidence-band.png",
+    "label": "kestrel-valley.example",
+    "inset": true,
+    "size": "large",
+    "alt": "The 'Call Us to Book a Load' band with a phone number that is not a link"
+   }
+  },
+  {
+   "layout": "offer",
+   "eyebrow": "Our recommendation",
+   "product": "NW Dispatch · Starter",
+   "title": "A customer portal,\n*live in four weeks*",
+   "body": "Shippers check load status themselves instead of calling dispatch.",
+   "glow": "strong",
+   "facts": [
+    {
+     "value": "$3,000",
+     "label": "setup (demo price)"
+    },
+    {
+     "value": "4",
+     "label": "weeks to live"
+    },
+    {
+     "value": "4",
+     "label": "modules"
+    }
+   ],
+   "chips": [
+    {
+     "text": "Live in 4 weeks or the setup fee is refunded",
+     "active": true
+    }
+   ],
+   "next": "Later: website rebuild, then search visibility",
+   "modules": [
+    "Live load status",
+    "Driver documents",
+    "Quote requests",
+    "Logins & roles"
+   ],
+   "mockup": {
+    "url": "portal.kestrel-valley.example",
+    "title": "Loads today",
+    "user": "Dispatch view",
+    "caption": "Illustrative mockup",
+    "kpis": [
+     {
+      "value": "9",
+      "label": "Active loads"
+     },
+     {
+      "value": "2",
+      "label": "Delivering today"
+     },
+     {
+      "value": "1",
+      "label": "Docs expiring"
+     }
+    ],
+    "rows": [
+     {
+      "id": "KV-310",
+      "lane": "Yakima, WA → Spokane, WA",
+      "status": "In transit",
+      "tone": "go",
+      "eta": "2:10 pm"
+     },
+     {
+      "id": "KV-311",
+      "lane": "Pasco, WA → Boise, ID",
+      "status": "Loading",
+      "tone": "wait",
+      "eta": "4:40 pm"
+     },
+     {
+      "id": "KV-307",
+      "lane": "Portland, OR → Yakima, WA",
+      "status": "Delivered",
+      "tone": "done",
+      "eta": "POD ✓"
+     }
+    ],
+    "alert": {
+     "title": "Driver #04: hazmat endorsement expires in 9 days",
+     "body": "Reminder sent to driver and safety manager."
+    }
+   }
+  },
+  {
+   "layout": "contact",
+   "photo": {
+    "src": "images/bg-abstract-1.jpg",
+    "mode": "full",
+    "dim": 0.6
+   },
+   "title": "Next step:\n*a 30-minute walkthrough*",
+   "body": "We map your loads and customers, then agree a fixed scope.",
+   "cta": "Book the walkthrough",
+   "proof": {
+    "stats": [
+     {
+      "value": "40+",
+      "label": "Demo projects"
+     },
+     {
+      "value": "99.9%",
+      "label": "Uptime target"
+     }
+    ],
+    "clients": [
+     "Example Bakery Co",
+     "Sample Rentals",
+     "Demo Freight"
+    ]
+   }
+  }
+ ]
+}

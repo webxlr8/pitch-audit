@@ -1,0 +1,15 @@
+{
+  "industry": "bulk liquid tanker haulage",
+  "ops_icp": true,
+  "expect_customer_portal": true,
+  "expect_customer_portal_reason": "Homepage promises live tracking, but there is no tracking page, customer login or quote form.",
+  "ops_signals": ["Loads booked by phone; quotes by email within 2 business days"],
+  "extra_findings": [
+    {"category": "trust", "id": "promise_mismatch", "severity": "medium", "title": "Promises 24/7 tracking it can't show",
+     "evidence": "Homepage: '24/7 Live Shipment Tracking'. Contact page: Monday to Friday, 9:00 - 17:00. No tracking page.",
+     "impact": "Shippers notice when claims and reality don't match.", "deduct": 10, "service": "ops"},
+    {"category": "social", "id": "dead_social", "severity": "medium", "title": "Social links go nowhere",
+     "evidence": "Facebook and Twitter links point to '#'.", "impact": "Looks abandoned to anyone checking.", "deduct": 5, "service": "growth"}
+  ],
+  "fit": null
+}

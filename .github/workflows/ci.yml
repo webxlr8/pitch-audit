@@ -1,0 +1,43 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  build-demo:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      PITCH_BROWSER: chromium
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: System packages
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update && sudo apt-get install -y poppler-utils fonts-inter; else brew install poppler; fi
+      - name: Python packages + browser
+        run: |
+          pip install -r skills/pitch-audit/requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Doctor
+        run: python skills/pitch-audit/scripts/doctor.py --profile examples/northwind/pitch-profile
+      - name: Unit tests
+        run: python -m unittest discover tests -v
+      - name: End-to-end demo, both styles (audit, assets, score, evidence, lint, render, WCAG, viewer checks)
+        run: |
+          python examples/run_demo.py
+          python skills/pitch-audit/scripts/build.py examples/northwind/clients/kestrel-valley --style style-2
+        env:
+          PITCH_PROFILE: examples/northwind/pitch-profile
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-${{ matrix.os }}
+          path: |
+            examples/demo-output.pdf
+            examples/northwind/clients/kestrel-valley/previews/
+            examples/northwind/clients/kestrel-valley/a11y/report.md
+            examples/northwind/clients/kestrel-valley/compat/

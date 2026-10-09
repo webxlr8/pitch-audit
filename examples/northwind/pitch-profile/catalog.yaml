@@ -1,0 +1,34 @@
+# FICTIONAL demo offers. Prices/guarantees here are examples only.
+offers:
+  - id: site-rebuild
+    name: Northwind · Website Rebuild
+    type: service
+    capabilities: [web, design, app]
+    promise: A fast, mobile-first site that turns visits into enquiries.
+    includes: [Mobile-first rebuild, Quote / booking form, Tap-to-call and chat, Image + speed optimisation]
+    timeline: 6 weeks
+    first_step: 2-week fix sprint
+  - id: growth
+    name: Northwind · Growth
+    type: service
+    capabilities: [growth]
+    promise: Found on Google and AI search, with tracking you can trust.
+    includes: [Technical SEO fixes, Schema + llms.txt, Analytics + ad pixels, Monthly report]
+  - id: care
+    name: Northwind · Care
+    type: service
+    capabilities: [infra, automation]
+    promise: Secure, monitored hosting and the boring automations done for you.
+    includes: [Managed hosting + HTTPS, Uptime monitoring, Lead follow-up automation]
+  - id: nw-dispatch
+    name: NW Dispatch · Starter
+    aliases: [NW Dispatch]
+    type: product
+    logo: brand/dispatch-logo-on-dark.svg
+    logo_height: 18
+    capabilities: [ops]
+    promise: A customer portal for carriers, live in 4 weeks.
+    price: $3,000 setup (demo price)
+    includes: [Live load status for customers, Driver document tracker, Quote requests in one queue, Logins and roles]
+    guarantees: [Live in 4 weeks or the setup fee is refunded (demo)]
+    first_step: 30-minute walkthrough

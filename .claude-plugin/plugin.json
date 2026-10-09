@@ -1,0 +1,25 @@
+{
+  "name": "pitch-audit",
+  "displayName": "pitch-audit",
+  "version": "0.1.0",
+  "description": "Audit a prospect's website and get a short, visual pitch deck PDF in your brand, safe to send on WhatsApp and email.",
+  "author": {
+    "name": "pitch-audit contributors"
+  },
+  "homepage": "https://github.com/webxlr8/pitch-audit",
+  "repository": "https://github.com/webxlr8/pitch-audit",
+  "license": "MIT",
+  "keywords": [
+    "website-audit",
+    "pitch-deck",
+    "sales-prospecting",
+    "lead-generation",
+    "agency",
+    "seo-audit",
+    "lighthouse",
+    "wcag",
+    "pdf",
+    "claude-code",
+    "claude-skill"
+  ]
+}

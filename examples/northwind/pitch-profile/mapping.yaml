@@ -1,0 +1,17 @@
+capabilities:
+  web: site-rebuild
+  design: site-rebuild
+  app: site-rebuild
+  infra: care
+  growth: growth
+  automation: care
+  ops: nw-dispatch
+fit_rules:
+  - offer: nw-dispatch
+    score: 85
+    keywords: [haulage, trucking, logistics, freight, carrier, tanker, fleet, courier, transport]
+default_fit: { offer: site-rebuild, score: 50 }
+guidance: |
+  - Carriers / logistics firms that book by phone and promise tracking: lead with NW Dispatch.
+  - Consumer businesses with weak sites: lead with Website Rebuild.
+  - Good site, invisible online: lead with Growth.
