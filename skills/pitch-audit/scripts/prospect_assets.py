@@ -94,8 +94,16 @@ def main():
     ap.add_argument("client_dir")
     ap.add_argument("url", nargs="?")
     ap.add_argument("--max-photos", type=int, default=6)
+    ap.add_argument("--no-filmstrip", action="store_true", help="skip filmstrip (prepare.py runs it after the audit)")
+    ap.add_argument("--filmstrip-only", action="store_true", help="only extract the filmstrip from lighthouse-mobile.json")
     a = ap.parse_args()
     cdir = os.path.abspath(a.client_dir)
+    if a.filmstrip_only:
+        out = os.path.join(cdir, "images")
+        os.makedirs(out, exist_ok=True)
+        fs = None if a.no_filmstrip else filmstrip(cdir, out)
+        print(f"filmstrip: {len(fs['frames']) if fs else 'none'}" + (f", first content at {fs['first_content_s']}s" if fs and fs.get('first_content_s') else ""))
+        return
     url = a.url
     if not url and os.path.exists(os.path.join(cdir, "audit.json")):
         url = json.load(open(os.path.join(cdir, "audit.json"))).get("final_url")
@@ -204,7 +212,7 @@ def main():
         with open(os.path.join(out, "CREDITS.md"), "a") as f:
             f.write("\n".join(credits) + "\n")
     print(f"logo: {'yes' if logos else 'not found'}  ·  their photos: {len(photos)}  ·  filmstrip: "
-          f"{len(fs['frames']) if fs else 'none (run audit.py with Lighthouse)'}"
+          f"{len(fs['frames']) if fs else ('later' if a.no_filmstrip else 'none (run audit.py with Lighthouse)')}"
           + (f", first content at {fs['first_content_s']}s" if fs and fs.get('first_content_s') else ""))
     if photos:
         print(f"look at: {os.path.join(out, 'prospect-photos.png')}")

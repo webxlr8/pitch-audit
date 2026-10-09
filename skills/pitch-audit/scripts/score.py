@@ -343,6 +343,15 @@ def score(audit, manual, R, mapping=None):
         g.deduct(d["absent_in_answers"], "geo_absent", "Not showing up when buyers ask AI or search",
                  "Checked: " + "; ".join(f"\"{q['q']}\"" for q in qs[:3]) + ", business not found in top results.",
                  "Buyers asking ChatGPT/Google for your category get your competitors.", "growth", "high")
+    ab = audit.get("ai_bots") or {}
+    if ab.get("search_blocked"):
+        who = ", ".join(ab["search_blocked"])
+        how = sorted({v["by"] for v in (ab.get("bots") or {}).values() if v.get("blocked") and v.get("kind") == "search"})
+        g.deduct(d["ai_search_bots_blocked"], "ai_search_blocked", "AI assistants are blocked from reading the site",
+                 f"Blocked: {who} (via {' and '.join(how)}).",
+                 "When buyers ask ChatGPT or Perplexity for your category, they can't read or recommend you.", "growth", "high")
+    elif ab.get("bots"):
+        g.ok("AI search assistants can read the site")
     if man_geo.get("google_business_profile") is False:
         g.deduct(d["no_google_business_profile"], "gbp", "No Google Business Profile found", "No Maps listing found.",
                  "Invisible in 'near me' searches and Google Maps.", "growth")

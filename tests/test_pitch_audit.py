@@ -100,6 +100,21 @@ class Speed(unittest.TestCase):
             os.environ.clear(); os.environ.update(old)
 
 
+class AiBots(unittest.TestCase):
+    def test_blocked_search_bots_become_a_finding_training_only_does_not(self):
+        import score as S
+        R = S.load(S.RUBRIC_PATH)
+        base = {"http": {"https": True}, "html": {}, "files": {}, "lighthouse": {}}
+        bots = lambda blocked: {"bots": {k: {"name": k, "kind": kind, "blocked": k in blocked, "by": "robots.txt" if k in blocked else None}
+                                        for k, kind in (("ChatGPT search", "search"), ("OpenAI training", "training"))},
+                                "search_blocked": [k for k in blocked if k == "ChatGPT search"],
+                                "training_blocked": [k for k in blocked if k == "OpenAI training"]}
+        r1 = S.score(dict(base, ai_bots=bots(["ChatGPT search"])), {}, R)
+        self.assertIn("ai_search_blocked", [f["id"] for f in r1["categories"]["geo"]["findings"]])
+        r2 = S.score(dict(base, ai_bots=bots(["OpenAI training"])), {}, R)
+        self.assertNotIn("ai_search_blocked", [f["id"] for f in r2["categories"]["geo"]["findings"]])
+
+
 class Profile(unittest.TestCase):
     def test_demo_profile_is_usable(self):
         r = run("profile_check.py", "--profile", PROFILE)

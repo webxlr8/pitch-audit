@@ -37,6 +37,7 @@ LAYOUTS = {
     "cards": ({"title", "cards"}, {"columns", "highlight", "grid_top", "grid_gap_top"}),
     "solutions": ({"title", "items"}, {"highlight", "grid_top"}),
     "tiers": ({"title", "tiers"}, {"highlight"}),
+    "compare": ({"title", "columns", "groups"}, {"highlight"}),
     "proof": ({"title"}, {"stats", "clients", "cases", "grid_top"}),
     "center": ({"title"}, set()),
     "contact": (set(), {"cta", "contact", "footer", "first_step", "proof"}),

@@ -148,7 +148,8 @@
       "schema_missing": 20,
       "faq_missing": 15,
       "absent_in_answers": 40,
-      "no_google_business_profile": 10
+      "no_google_business_profile": 10,
+      "ai_search_bots_blocked": 35
     },
     "ops": {
       "_note": "Signals come from audit.ops_signals plus manual.ops_signals that Claude adds from research.",

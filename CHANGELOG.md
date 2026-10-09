@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 (2026-10-09)
+Faster to a finished deck, one new finding.
+- `prepare.py`: one command prepares a prospect. The audit runs in parallel with collecting their logo and photos, then the filmstrip, score and background. On a real site: 99 s across four commands down to 52 s in one.
+- New finding: AI assistants blocked from reading the site. Checks ChatGPT search, ChatGPT browsing, Perplexity and Claude search, through robots.txt (read the way a browser reads it, to avoid false alarms on bot-protected sites) and through firewall/CDN blocks. Blocking training-only bots is reported but not penalised.
+- Evaluated and not adopted: brand-mention and citability scoring from other open-source SEO skills. They returned placeholder or low-signal results in our tests and would not help win a client.
+
 ## 0.1.0 (2026-10-09)
 First public release.
 

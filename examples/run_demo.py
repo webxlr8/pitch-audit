@@ -39,13 +39,8 @@ def main():
     import serve
     srv = serve.start(background=True)
     try:
-        audit = [os.path.join(SCRIPTS, "audit.py"), URL, "--out", CLIENT]
-        if "--fast" in sys.argv:
-            audit.append("--no-lighthouse")
-        run(*audit)
-        run(os.path.join(SCRIPTS, "score.py"), CLIENT)
-        run(os.path.join(SCRIPTS, "prospect_assets.py"), CLIENT, URL)   # their logo, their photos, load filmstrip
-        run(os.path.join(SCRIPTS, "backgrounds.py"), CLIENT, "--count", "1")
+        # one command: audit || their logo + photos, then filmstrip, score, background
+        run(os.path.join(SCRIPTS, "prepare.py"), URL, CLIENT, "--speed", "off" if "--fast" in sys.argv else "auto")
         ev = os.path.join(SCRIPTS, "evidence.py")
         run(ev, CLIENT, URL, "--name", "band", "--selector", ".band div:first-child")
         run(ev, CLIENT, URL + "contact.html", "--name", "hours", "--selector", ".box p:first-child")

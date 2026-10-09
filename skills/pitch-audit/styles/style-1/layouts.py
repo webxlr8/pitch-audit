@@ -1,6 +1,6 @@
 """Style 1: Neon Studio. render(deck, ctx) -> full HTML document.
 
-Layouts: cover, statement, stats, scorecard, finding, process, cards, solutions, tiers, proof, center, contact.
+Layouts: cover, statement, stats, scorecard, finding, process, cards, solutions, tiers, compare, proof, center, contact.
 Field reference: references/deck-data-schema.md
 """
 import html
@@ -586,6 +586,67 @@ class R:
         </div>"""
         return self.wrap(i, s, inner)
 
+    def compare(self, i, s):
+        """Side-by-side comparison table: packages or options as columns, features as rows.
+        columns: [{title, sub}] (2-3), highlight: column index, groups: [{label, rows: [{label, values: [..]}]}].
+        A value of true shows a check, false a muted dash, a string shows as text."""
+        cols = s.get("columns", [])[:3]
+        hot = s.get("highlight")
+        n = len(cols) or 1
+        grid = f"grid-template-columns:1.3fr {' '.join(['1fr'] * n)}"
+        rows = []
+        for g in s.get("groups", []):
+            rows.append(("group", g.get("label")))
+            for r in g.get("rows", []):
+                rows.append(("row", r))
+        nrows = sum(1 for k, _ in rows if k == "row")
+        ngroups = len(rows) - nrows
+        top = 96 + (s.get("top", 0) or 0)          # eyebrow + headline block
+        table_top = top + 112
+        bottom = 720 - (92 if s.get("footnote") else 64)
+        rh = max(28, min(50, (bottom - table_top - 76 - ngroups * 32) // max(nrows, 1)))
+        fs = 18 if rh >= 42 else (16 if rh >= 34 else 14)
+
+        def cell(v, c):
+            bg = "background:rgb(var(--accent-rgb) / .09);" if c == hot else ""
+            if v is True:
+                body = icon("check")
+            elif v is False or v is None:
+                body = '<span style="color:var(--muted);font-size:20px">&ndash;</span>'
+            else:
+                body = f'<span style="color:var(--text);font:600 {fs}px/1.25 var(--sans)">{fmt(v)}</span>'
+            return f'<div style="{bg}display:flex;align-items:center;justify-content:center;text-align:center;padding:0 12px">{body}</div>'
+
+        head = '<div></div>' + "".join(
+            f'<div style="{"background:rgb(var(--accent-rgb) / .16);border:1px solid rgb(var(--accent-rgb) / .6);" if c == hot else "border:1px solid var(--line);"}'
+            f'border-bottom:0;border-radius:14px 14px 0 0;padding:14px 12px 12px;text-align:center">'
+            f'<div class="card-tag">{fmt(col.get("sub", ""))}</div>'
+            f'<div class="card-title" style="font-size:24px;margin-top:8px">{fmt(col.get("title"))}</div></div>'
+            for c, col in enumerate(cols))
+        body = ""
+        for kind, r in rows:
+            if kind == "group":
+                body += (f'<div style="grid-column:1 / -1;height:32px;display:flex;align-items:flex-end;padding-bottom:6px;'
+                         f'border-bottom:1px solid var(--line)"><span class="card-tag">{fmt(r)}</span></div>')
+                continue
+            vals = (r.get("values") or [])[:n] + [None] * (n - len(r.get("values") or []))
+            body += (f'<div style="display:contents"><div style="height:{rh}px;display:flex;align-items:center;'
+                     f'border-bottom:1px solid var(--line);color:var(--body);font:400 {fs + 1}px/1.25 var(--sans)">{fmt(r.get("label"))}</div>'
+                     + "".join(cell(v, c).replace('<div style="', f'<div style="height:{rh}px;border-bottom:1px solid var(--line);', 1)
+                               for c, v in enumerate(vals)) + "</div>")
+        inner = f"""
+        <div class="content">
+          <div style="position:absolute;left:var(--mx);top:{top}px;width:1100px">
+            {eyebrow(s.get("eyebrow"))}
+            <div class="h-sm" style="margin-top:14px;font-size:44px">{fmt(s.get("title"))}</div>
+          </div>
+          <div style="position:absolute;left:var(--mx);right:var(--mx);top:{table_top}px;display:grid;{grid};column-gap:0">
+            {head}{body}
+          </div>
+          {f'<div class="caption" style="position:absolute;left:var(--mx);bottom:56px;font-size:15px">{fmt(s.get("footnote"))}</div>' if s.get("footnote") else ""}
+        </div>"""
+        return self.wrap(i, s, inner)
+
     def summary(self, i, s):
         """One-page executive summary (rendered as its own PDF)."""
         ov = int(s.get("overall", 0))
@@ -683,7 +744,7 @@ class R:
         return self.wrap(i, s, inner)
 
 
-LAYOUTS = ["cover", "statement", "stats", "scorecard", "score_gaps", "finding", "process", "cards", "solutions", "tiers", "proof", "center", "contact", "offer", "summary"]
+LAYOUTS = ["cover", "statement", "stats", "scorecard", "score_gaps", "finding", "process", "cards", "solutions", "tiers", "proof", "center", "contact", "offer", "compare", "summary"]
 
 
 def render(deck, ctx):

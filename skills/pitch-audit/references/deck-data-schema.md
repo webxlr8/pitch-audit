@@ -57,6 +57,8 @@ Image paths are relative to the client folder (e.g. `screenshots/desktop-fold.pn
 
 **tiers**: `title`, `tiers: [{ "num", "title", "body", "price", "theme" }]` (max 3), `highlight`, `footnote`.
 
+**compare**: side-by-side table for packages or options. `title`, `columns: [{ "title", "sub" }]` (2–3), `highlight` (column index), `groups: [{ "label", "rows": [{ "label", "values": [true, false, "text"] }] }]` (about 12 rows max over all groups; `true` = check, `false` = dash, text shows as is), `footnote`.
+
 **proof**: `title`, `body`, `stats: [{value,label}]` (max 4, optional), `clients: [names]` (max 14), `cases: [{ "client", "industry", "work", "result" }]` (max 3). Fill `result` only with a real, client-approved number.
 
 **score_gaps**: `title`, `overall`, `categories` (8, mini bars), `gaps: [{icon, title, body}]` (3), `ring_caption`. Replaces separate impact + scorecard slides.

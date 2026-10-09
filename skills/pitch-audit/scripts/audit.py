@@ -49,12 +49,12 @@ def normalize_url(url):
     return url
 
 
-def http_get(url, method="GET", timeout=20, max_bytes=2_000_000):
+def http_get(url, method="GET", timeout=20, max_bytes=2_000_000, ua=None):
     """Return dict(status, url, headers, body, ttfb_ms, error). Follows redirects."""
     ctx = ssl.create_default_context()
     t0 = time.time()
     try:
-        req = urllib.request.Request(url, method=method, headers={"User-Agent": UA, "Accept": "*/*"})
+        req = urllib.request.Request(url, method=method, headers={"User-Agent": ua or UA, "Accept": "*/*"})
         with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
             ttfb = (time.time() - t0) * 1000
             body = r.read(max_bytes) if method == "GET" else b""
@@ -341,6 +341,39 @@ def run_browser(url, shots_dir):
     return res
 
 
+AI_BOTS = {  # search = answers users get today; training = model training (blocking it is a legitimate choice)
+    "OAI-SearchBot": ("ChatGPT search", "search"), "ChatGPT-User": ("ChatGPT browsing", "search"),
+    "PerplexityBot": ("Perplexity", "search"), "Claude-SearchBot": ("Claude search", "search"),
+    "GPTBot": ("OpenAI training", "training"), "ClaudeBot": ("Anthropic training", "training"),
+    "Google-Extended": ("Google Gemini training", "training"), "CCBot": ("Common Crawl", "training"),
+}
+
+
+def check_ai_bots(url):
+    """Can AI assistants read the site? robots.txt is read as a browser (bot-protected sites refuse
+    Python's default agent, which would wrongly look like 'block everything'); a homepage request with each
+    bot's user agent catches CDN/firewall blocks, trusted only when a normal browser gets 200."""
+    import urllib.robotparser
+    origin = "{0.scheme}://{0.netloc}".format(urllib.parse.urlparse(url))
+    rp = urllib.robotparser.RobotFileParser()
+    r = http_get(origin + "/robots.txt", max_bytes=300_000)
+    body = r["body"].decode("utf-8", "ignore") if r["status"] == 200 else ""
+    rp.parse([] if "<html" in body[:500].lower() else body.splitlines())
+    base = http_get(url, max_bytes=2000)["status"]
+
+    def probe(bot):
+        name, kind = AI_BOTS[bot]
+        allowed = rp.can_fetch(bot, url)
+        st = http_get(url, max_bytes=2000, ua=f"Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; {bot}/1.0)")["status"]
+        firewall = base == 200 and st in (401, 403, 429, 503)
+        return bot, {"name": name, "kind": kind, "robots_allows": allowed, "http": st,
+                     "blocked": (not allowed) or firewall, "by": "robots.txt" if not allowed else ("firewall/CDN" if firewall else None)}
+    with cf.ThreadPoolExecutor(max_workers=8) as ex:
+        res = dict(ex.map(probe, AI_BOTS))
+    return {"bots": res, "search_blocked": [v["name"] for v in res.values() if v["kind"] == "search" and v["blocked"]],
+            "training_blocked": [v["name"] for v in res.values() if v["kind"] == "training" and v["blocked"]]}
+
+
 def check_links(links, origin_host, max_links):
     seen, targets = set(), []
     for l in links:
@@ -600,8 +633,15 @@ def main():
             if not any(n["href"] == l["href"] for n in nav):
                 nav.append(l)
 
-    log("link check")
-    links = check_links(d.get("links", []), host, a.max_links) if d else {"checked": 0, "broken": []}
+    log("link check + AI assistant access")
+    with cf.ThreadPoolExecutor(max_workers=2) as ex:
+        f_links = ex.submit(check_links, d.get("links", []), host, a.max_links) if d else None
+        f_ai = ex.submit(check_ai_bots, final)
+        links = f_links.result() if f_links else {"checked": 0, "broken": []}
+        try:
+            ai_bots = f_ai.result()
+        except Exception as e:  # noqa: BLE001
+            ai_bots = {"error": str(e)[:200]}
 
     lh = {"mobile": None, "desktop": None}
     if not a.no_lighthouse and a.speed != "off":
@@ -626,6 +666,7 @@ def main():
                  "mobile_horizontal_overflow": bool(m and m.get("scroll_width", 0) > m.get("inner_width", 0) + 5),
                  "browser_error": br.get("error")},
         "links": links,
+        "ai_bots": ai_bots,
         "conversion": {"ctas_above_fold_desktop": d.get("ctas_above_fold", []), "ctas_above_fold_mobile": m.get("ctas_above_fold", []),
                        "forms": d.get("forms", 0), "email_inputs": d.get("inputs_email", 0),
                        "tel_links": d.get("tel_links", 0), "mailto_links": d.get("mailto_links", 0),

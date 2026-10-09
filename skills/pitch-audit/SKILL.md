@@ -20,14 +20,14 @@ description: Turn any prospect's website into a short, visual pitch deck PDF fro
 6. **Send only what passed `build.py`.** One flattened PDF, safe on WhatsApp and email.
 
 ## Workflow per prospect
-1. **Audit** (in background): `python3 scripts/audit.py <url> --out clients/<slug>`.
+1. **Prepare** (one command, about 1 minute; run in background): `python3 scripts/prepare.py <url> clients/<slug>`. The audit runs in parallel with their logo and photos, then the filmstrip, score and a background. Exit 2 means unreachable or parked: confirm the URL.
 2. **Research** → `research.md` (`references/business-research.md`).
 3. **Facts + score**:
    - Write `manual.json` (`references/audit-rubric.md`) with verified facts and visual `extra_findings`.
    - Run `python3 scripts/score.py clients/<slug>`. Fix false positives in `manual.json`.
 4. **Lead offer**: pick one, using `references/offer-selection.md` and `mapping.yaml → guidance`.
 5. **Visuals**:
-   - Theirs first: `python3 scripts/prospect_assets.py clients/<slug>` (their logo, their photos, the load filmstrip). Look at the contact sheet and pick.
+   - Theirs first, already collected by `prepare.py`: their logo, their photos and the load filmstrip. Look at `images/prospect-photos.png` and pick.
    - Evidence: `scripts/evidence.py` captures proof from their pages.
    - Fallbacks:
      - free stock photos (`fetch_image.py`) only when they have no usable photos

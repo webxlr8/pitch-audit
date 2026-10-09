@@ -32,7 +32,8 @@ Run when `pitch-profile/company.yaml` is missing, or the user wants to change th
 ## Tools
 | Script | Use |
 |---|---|
-| `audit.py <url> --out clients/<slug> [--speed auto\|psi\|local\|off]` | Site audit. Mobile and desktop speed tests run in parallel. Exit 2 = unreachable or parked: confirm the URL. Flags a bad certificate on the bare domain. |
+| `prepare.py <url> clients/<slug>` | **Start here.** Runs audit + prospect assets in parallel, then filmstrip, score, background. About 1 min. |
+| `audit.py <url> --out clients/<slug> [--speed auto\|psi\|local\|off]` | Site audit. Mobile and desktop speed tests run in parallel. Exit 2 = unreachable or parked: confirm the URL. Flags a bad certificate on the bare domain, and checks whether AI assistants (ChatGPT search, Perplexity, Claude) may read the site, via robots.txt and firewall. |
 | `score.py clients/<slug>` / `--explain` | 8-category score; findings mapped to your offers |
 | `prospect_assets.py clients/<slug>` | Their logo (`client.logo`, `client.logo_on_dark`), their photos (`images/prospect-photo-N.jpg` + contact sheet), page-load filmstrip (`images/filmstrip.json` → `finding.filmstrip`) |
 | `evidence.py clients/<slug> <url> --name x` | Proof screenshot, 1000×700. Modes: `--cert-warning`, `--text "..."`, `--selector`, `--clip x,y,w,h`, `--mobile`, `--stack a.png b.png`. Prints an `image` snippet; fill in its `alt`. |
